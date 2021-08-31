@@ -1,6 +1,9 @@
 #ifndef NSPSPLITTER_H
 #define NSPSPLITTER_H
 
+#define _FAT32PartSize 0xFFFF0000
+#define _FAT32BlockSize 0x00008000
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -13,8 +16,12 @@
 #include <QString>
 
 
-class NSPSplitter
+class NSPSplitter : public QObject
 {
+    Q_OBJECT
+
+signals:
+    void progress(int prog);
 public:
     NSPSplitter();
     size_t nspCheckFilesize();
@@ -24,9 +31,6 @@ public:
     void setInPath(QString path);
     void setOutPath(QString path);
 private:
-    unsigned long _FAT32PartSize = 0xFFFF0000;
-    unsigned long _FAT32BlockSize = 0x00008000;
-
     std::ifstream _nsp;
     QString _inPath;
     QString _outPath;

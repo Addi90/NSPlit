@@ -55,7 +55,6 @@ int NSPSplitter::nspSplit(){
 
         /* for every part, calculate read starting-pos. and create new file */
         size_t pos = i * _FAT32PartSize;
-        //std::vector<char> buf(_fat32_block_size);
         char buf[_FAT32BlockSize];
 
         QString partSavePath(savePath);
@@ -66,6 +65,7 @@ int NSPSplitter::nspSplit(){
         std::ofstream outStream;
         outStream.open(partSavePath.toStdString(), std::ios::out | std::ios::binary);
 
+        /* read sourcefile blockwise and copy to dest., stop at part-end/file-end */
         while(pos  < filesize && (pos < (i+1)*_FAT32PartSize)){
 
             if(filesize > pos+sizeof(buf)){
@@ -84,7 +84,9 @@ int NSPSplitter::nspSplit(){
                 outStream.write(buf2.data(),leftover);
                 break;
             }
-            qDebug() << "current pos: " << pos;
+            int prog = std::lround(((double)pos / (double)filesize)*100);
+            qDebug() << "current pos: " << pos << "prog.: "<< prog << "%";
+            emit progress(prog);
 
         }
         outStream.close();
@@ -95,8 +97,10 @@ int NSPSplitter::nspSplit(){
 }
 
 void NSPSplitter::setInPath(QString path){
+    /* TODO: check if valid */
     _inPath = path;
 }
 void NSPSplitter::setOutPath(QString path){
+    /* TODO: check if valid */
     _outPath = path;
 }

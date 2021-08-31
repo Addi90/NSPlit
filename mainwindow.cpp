@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->progressBar->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -54,9 +55,27 @@ void MainWindow::on_pushButton_3_clicked()
 void MainWindow::on_pushButton_2_clicked()
 {
     NSPSplitter splitter;
+    QObject::connect(&splitter, &NSPSplitter::progress,
+                     ui->progressBar, &QProgressBar::valueChanged);
     splitter.setInPath(ui->lineEdit->text());
     splitter.setOutPath(ui->lineEdit_2->text());
+
     splitter.nspSplit();
 
+}
+
+
+void MainWindow::on_progressBar_valueChanged(int value)
+{
+    if(ui->progressBar->isVisible() && (value < 100)){
+        ui->progressBar->setValue(value);
+    }
+    else if(!ui->progressBar->isVisible() && (value < 100) ){
+        ui->progressBar->setVisible(true);
+    }
+    else{
+        ui->progressBar->setVisible(false);
+        ui->progressBar->setValue(0);
+    }
 }
 
