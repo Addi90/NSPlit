@@ -8,12 +8,12 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
-#include <string>
-#include <cmath>
 #include <direct.h>
 #include <QDebug>
 #include <QDir>
 #include <QString>
+#include <QMessageBox>
+#include <nsp.h>
 
 
 class NSPSplitter : public QObject
@@ -23,13 +23,12 @@ class NSPSplitter : public QObject
 signals:
     void progress(int prog);
 public:
-    NSPSplitter();
-    size_t nspCheckFilesize();
+    NSPSplitter(QObject* parent);
     int nspCalcParts(size_t size);
 
-    int nspSplit();
-    void setInPath(QString path);
-    void setOutPath(QString path);
+    int nspSplit(NSP* nsp);
+
+    int setOutPath(QString path);
 private:
     std::ifstream _nsp;
     QString _inPath;

@@ -1,23 +1,10 @@
 #include "nspsplitter.h"
 
-NSPSplitter::NSPSplitter()
+NSPSplitter::NSPSplitter(QObject* parent)
 {
 
 }
 
-size_t NSPSplitter::nspCheckFilesize(){
-    if(!_inPath.isEmpty()){
-        _nsp.open(_inPath.toStdString(),std::ios::ate | std::ios::binary);
-        size_t size = _nsp.tellg();
-
-        if(_nsp.is_open() && size){
-            _nsp.close();
-            return size;
-        }
-        else return -1;
-    }
-    return -2;
-}
 
 int NSPSplitter::nspCalcParts(size_t size){
     if(size <= 0) return -1;
@@ -27,28 +14,27 @@ int NSPSplitter::nspCalcParts(size_t size){
 
 
 
-int NSPSplitter::nspSplit(){
+int NSPSplitter::nspSplit(NSP* nsp){
 
-    size_t filesize = nspCheckFilesize();
+    size_t filesize = nsp->size();
     int parts = nspCalcParts(filesize);
 
-    if(parts <= 0) return -1;
-    if(_outPath.isEmpty()) return -2;
+    if(parts <= 1) return -1;
 
-    _nsp.open(_inPath.toStdString(),std::ios::in | std::ios::binary);
+    _nsp.open(nsp->sourcePath().toStdString(),std::ios::in | std::ios::binary);
     _nsp.seekg(_nsp.beg);
 
     /* TODO: get filename, format to new splitted nsp-foldername (the new nsp file) */
 
-    QStringList splittedPath = _inPath.split('/');
+    QStringList splittedPath = nsp->sourcePath().split('/');
     QString sourceFileName = splittedPath.last().remove(".nsp");
     sourceFileName.append("_split.nsp");
     QString savePath = _outPath + '/' + sourceFileName;
     savePath.replace('/',"\\\\");
 
-    //if(!QDir().exists()){
+    if(!QDir().exists()){
         QDir().mkdir(savePath);
-    //}
+    }
 
 
     for(int i = 0; i < parts; i++){
@@ -75,7 +61,6 @@ int NSPSplitter::nspSplit(){
                 pos += sizeof(buf);
             }
             else{
-
                 _nsp.seekg(pos);
                 size_t leftover = filesize - pos+1;
                 std::vector<char> buf2(leftover);
@@ -92,15 +77,16 @@ int NSPSplitter::nspSplit(){
         outStream.close();
     }
     _nsp.close();
-    return parts;
+    return 0;
 
 }
 
-void NSPSplitter::setInPath(QString path){
-    /* TODO: check if valid */
-    _inPath = path;
-}
-void NSPSplitter::setOutPath(QString path){
-    /* TODO: check if valid */
+
+int NSPSplitter::setOutPath(QString path){
+
+    if(!QDir(path).exists()){
+        return -1;
+    }
     _outPath = path;
+    return 0;
 }

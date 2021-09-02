@@ -2,20 +2,24 @@
 #include "ui_mainwindow.h"
 #include "QFileDialog"
 #include "nspsplitter.h"
+#include "nsp.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+
     ui->setupUi(this);
     ui->progressBar->setVisible(false);
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 
 /* get and display source Filepath, calculate and display estimated no. of parts */
 void MainWindow::on_pushButton_clicked()
@@ -30,14 +34,17 @@ void MainWindow::on_pushButton_clicked()
     QString fileDir = fileName.left(fileName.lastIndexOf('/'));
     ui->lineEdit_2->setText(fileDir);
 
+    NSPSplitter splitter(this);
+    NSP nsp;
+    if(nsp.setSourcePath(ui->lineEdit->text())) return;
 
-    NSPSplitter splitter;
-    splitter.setInPath(fileName);
-    size_t filesize = splitter.nspCheckFilesize();
+    size_t filesize = nsp.size();
     int parts = splitter.nspCalcParts(filesize);
     QString no_of_parts = tr("Filesize: ") + QString::number(filesize/1024/1024) + "MB  " +
-            tr("Estimated Number of Parts: ") + QString::number(parts);
+                tr("Estimated Number of Parts: ") + QString::number(parts);
     ui->label_3->setText(no_of_parts);
+
+
 }
 
 
@@ -47,20 +54,41 @@ void MainWindow::on_pushButton_3_clicked()
                                                     "",
                                                     QFileDialog::ShowDirsOnly |
                                                     QFileDialog::DontResolveSymlinks);
-
     ui->lineEdit_2->setText(dir);
 }
 
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    NSPSplitter splitter;
+    NSPSplitter splitter(this);
     QObject::connect(&splitter, &NSPSplitter::progress,
                      ui->progressBar, &QProgressBar::valueChanged);
-    splitter.setInPath(ui->lineEdit->text());
-    splitter.setOutPath(ui->lineEdit_2->text());
+    NSP nsp;
 
-    splitter.nspSplit();
+    if(nsp.setSourcePath(ui->lineEdit->text())){
+        QMessageBox msgBox;
+        msgBox.setText(tr("Not a valid File selected!"));
+        msgBox.exec();
+        return;
+    }
+    if(splitter.setOutPath(ui->lineEdit_2->text())){
+        QMessageBox msgBox;
+        msgBox.setText(tr("Not a valid Save Path!"));
+        msgBox.exec();
+        return;
+    }
+    switch(splitter.nspSplit(&nsp)){
+        case -1:{
+            QMessageBox msgBox;
+            msgBox.setText(tr(".nps File too small - splitting not necessary!"));
+            msgBox.exec();
+            break;
+            }
+        case -2:
+            break;
+        default:
+            ;
+    }
 
 }
 

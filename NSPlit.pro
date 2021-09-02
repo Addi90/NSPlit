@@ -11,10 +11,12 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    nsp.cpp \
     nspsplitter.cpp
 
 HEADERS += \
     mainwindow.h \
+    nsp.h \
     nspsplitter.h
 
 FORMS += \
