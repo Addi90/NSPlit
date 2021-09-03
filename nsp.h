@@ -12,17 +12,17 @@ class NSP : public QObject
 
 public:
     NSP();
-
+    NSP(QString path);
     size_t size();
     QString sourcePath();
 
     int setSourcePath(QString path);
+    int setSize(QString path);
 
 private:
     QString _nspSourcePath;
     size_t _nspSize; // size in bytes
-
-    int setSize(QString path);
+    std::ifstream _nsp;
 
 signals:
 

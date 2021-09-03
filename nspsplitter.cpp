@@ -5,13 +5,11 @@ NSPSplitter::NSPSplitter(QObject* parent)
 
 }
 
-
 int NSPSplitter::nspCalcParts(size_t size){
     if(size <= 0) return -1;
     int parts = (int) (size / _FAT32PartSize);
     return parts+1;
 }
-
 
 
 int NSPSplitter::nspSplit(NSP* nsp){
@@ -24,8 +22,6 @@ int NSPSplitter::nspSplit(NSP* nsp){
     _nsp.open(nsp->sourcePath().toStdString(),std::ios::in | std::ios::binary);
     _nsp.seekg(_nsp.beg);
 
-    /* TODO: get filename, format to new splitted nsp-foldername (the new nsp file) */
-
     QStringList splittedPath = nsp->sourcePath().split('/');
     QString sourceFileName = splittedPath.last().remove(".nsp");
     sourceFileName.append("_split.nsp");
@@ -35,7 +31,6 @@ int NSPSplitter::nspSplit(NSP* nsp){
     if(!QDir().exists()){
         QDir().mkdir(savePath);
     }
-
 
     for(int i = 0; i < parts; i++){
 

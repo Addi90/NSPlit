@@ -14,21 +14,25 @@
 #include <QString>
 #include <QMessageBox>
 #include <nsp.h>
+#include <QThread>
 
 
-class NSPSplitter : public QObject
+class NSPSplitter : public QThread
 {
     Q_OBJECT
 
 signals:
     void progress(int prog);
+
 public:
     NSPSplitter(QObject* parent);
     int nspCalcParts(size_t size);
 
+
     int nspSplit(NSP* nsp);
 
     int setOutPath(QString path);
+    int setNSPItem(NSP* nsp);
 private:
     std::ifstream _nsp;
     QString _inPath;

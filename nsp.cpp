@@ -4,19 +4,23 @@ NSP::NSP(){
 
 }
 
+NSP::NSP(QString path){
+    setSourcePath(path);
+    setSize(path);
+}
+
 int NSP::setSourcePath(QString path)
 {
     QFileInfo file(path);
     if(!file.exists() || !file.isFile()){
-        return -1;
+        return -3;
     }
     _nspSourcePath = path;
-    return 0;
+    return setSize(path);
 }
 
 size_t NSP::size()
 {
-    if(_nspSize) setSize(_nspSourcePath);
     return _nspSize;
 }
 
@@ -27,12 +31,13 @@ QString NSP::sourcePath()
 
 int NSP::setSize(QString path){
     if(!path.isEmpty()){
-        std::ifstream _nspDataStream;
-        _nspDataStream.open(path.toStdString(),std::ios::ate | std::ios::binary);
-        size_t size = _nspDataStream.tellg();
 
-        if(_nspDataStream.is_open() && size){
-            _nspDataStream.close();
+        path.replace('/',"\\\\");
+        _nsp.open(path.toStdString(),std::ios::ate | std::ios::binary);
+        size_t size = _nsp.tellg();
+
+        if(_nsp.is_open() && size){
+            _nsp.close();
             _nspSize = size;
             return 0;
         }

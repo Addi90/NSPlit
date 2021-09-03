@@ -35,10 +35,15 @@ void MainWindow::on_pushButton_clicked()
     ui->lineEdit_2->setText(fileDir);
 
     NSPSplitter splitter(this);
-    NSP nsp;
-    if(nsp.setSourcePath(ui->lineEdit->text())) return;
+    NSP nsp(ui->lineEdit->text());
 
     size_t filesize = nsp.size();
+    if(filesize < 0){
+        QMessageBox msgBox;
+        msgBox.setText(tr("Error reading Source File!"));
+        msgBox.exec();
+        return;
+    }
     int parts = splitter.nspCalcParts(filesize);
     QString no_of_parts = tr("Filesize: ") + QString::number(filesize/1024/1024) + "MB  " +
                 tr("Estimated Number of Parts: ") + QString::number(parts);
@@ -77,17 +82,11 @@ void MainWindow::on_pushButton_2_clicked()
         msgBox.exec();
         return;
     }
-    switch(splitter.nspSplit(&nsp)){
-        case -1:{
-            QMessageBox msgBox;
-            msgBox.setText(tr(".nps File too small - splitting not necessary!"));
-            msgBox.exec();
-            break;
-            }
-        case -2:
-            break;
-        default:
-            ;
+    if(splitter.nspSplit(&nsp)){
+        QMessageBox msgBox;
+        msgBox.setText(tr(".nsp File too small - splitting not necessary!"));
+        msgBox.exec();
+        return;
     }
 
 }
