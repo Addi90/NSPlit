@@ -13,10 +13,12 @@ class NSP : public QObject
 public:
     NSP();
     NSP(QString path);
-    size_t size();
-    QString sourcePath();
 
-    int setSourcePath(QString path);
+    size_t size();
+    QString path();
+    QString name();
+
+    int setPath(QString path);
     int setSize(QString path);
 
 private:

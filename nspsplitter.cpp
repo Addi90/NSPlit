@@ -1,6 +1,6 @@
 #include "nspsplitter.h"
 
-NSPSplitter::NSPSplitter(QObject* parent)
+NSPSplitter::NSPSplitter()
 {
 
 }
@@ -19,18 +19,13 @@ int NSPSplitter::nspSplit(NSP* nsp){
 
     if(parts <= 1) return -1;
 
-    _nsp.open(nsp->sourcePath().toStdString(),std::ios::in | std::ios::binary);
+    _nsp.open(nsp->path().toStdString(),std::ios::in | std::ios::binary);
     _nsp.seekg(_nsp.beg);
 
-    QStringList splittedPath = nsp->sourcePath().split('/');
-    QString sourceFileName = splittedPath.last().remove(".nsp");
-    sourceFileName.append("_split.nsp");
-    QString savePath = _outPath + '/' + sourceFileName;
-    savePath.replace('/',"\\\\");
-
-    if(!QDir().exists()){
-        QDir().mkdir(savePath);
-    }
+    /* make new nsp-folder/container for splitted files */
+    QString sourceFileName = nsp->name().remove(".nsp");
+    sourceFileName.append("_split.nsp");   
+    QString savePath = makeSaveDir(sourceFileName);
 
     for(int i = 0; i < parts; i++){
 
@@ -41,13 +36,12 @@ int NSPSplitter::nspSplit(NSP* nsp){
         QString partSavePath(savePath);
         QString partName = QStringLiteral("/%1").arg(i,2,10,QLatin1Char('0'));
         partSavePath.append(partName);
-        partSavePath.replace('/',"\\\\");
 
         std::ofstream outStream;
         outStream.open(partSavePath.toStdString(), std::ios::out | std::ios::binary);
 
         /* read sourcefile blockwise and copy to dest., stop at part-end/file-end */
-        while(pos  < filesize && (pos < (i+1)*_FAT32PartSize)){
+        while((pos  < filesize) && (pos < (i+1)*_FAT32PartSize)){
 
             if(filesize > pos+sizeof(buf)){
                 _nsp.seekg(pos);
@@ -65,7 +59,7 @@ int NSPSplitter::nspSplit(NSP* nsp){
                 break;
             }
             int prog = std::lround(((double)pos / (double)filesize)*100);
-            qDebug() << "current pos: " << pos << "prog.: "<< prog << "%";
+            //qDebug() << "current pos: " << pos << "prog.: "<< prog << "%";
             emit progress(prog);
 
         }
@@ -77,11 +71,18 @@ int NSPSplitter::nspSplit(NSP* nsp){
 }
 
 
-int NSPSplitter::setOutPath(QString path){
+int NSPSplitter::setSavePath(QString path){
 
     if(!QDir(path).exists()){
         return -1;
     }
     _outPath = path;
     return 0;
+}
+
+QString NSPSplitter::makeSaveDir(QString name)
+{
+    QString savePath = _outPath + '/' + name;
+    QDir().mkdir(savePath);
+    return savePath;
 }

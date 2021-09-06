@@ -34,16 +34,11 @@ void MainWindow::on_pushButton_clicked()
     QString fileDir = fileName.left(fileName.lastIndexOf('/'));
     ui->lineEdit_2->setText(fileDir);
 
-    NSPSplitter splitter(this);
+    NSPSplitter splitter;
     NSP nsp(ui->lineEdit->text());
 
     size_t filesize = nsp.size();
-    if(filesize < 0){
-        QMessageBox msgBox;
-        msgBox.setText(tr("Error reading Source File!"));
-        msgBox.exec();
-        return;
-    }
+
     int parts = splitter.nspCalcParts(filesize);
     QString no_of_parts = tr("Filesize: ") + QString::number(filesize/1024/1024) + "MB  " +
                 tr("Estimated Number of Parts: ") + QString::number(parts);
@@ -65,18 +60,18 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    NSPSplitter splitter(this);
+    NSPSplitter splitter;
     QObject::connect(&splitter, &NSPSplitter::progress,
                      ui->progressBar, &QProgressBar::valueChanged);
     NSP nsp;
 
-    if(nsp.setSourcePath(ui->lineEdit->text())){
+    if(nsp.setPath(ui->lineEdit->text())){
         QMessageBox msgBox;
         msgBox.setText(tr("Not a valid File selected!"));
         msgBox.exec();
         return;
     }
-    if(splitter.setOutPath(ui->lineEdit_2->text())){
+    if(splitter.setSavePath(ui->lineEdit_2->text())){
         QMessageBox msgBox;
         msgBox.setText(tr("Not a valid Save Path!"));
         msgBox.exec();

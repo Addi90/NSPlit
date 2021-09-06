@@ -1,9 +1,6 @@
 #ifndef NSPSPLITTER_H
 #define NSPSPLITTER_H
 
-#define _FAT32PartSize 0xFFFF0000
-#define _FAT32BlockSize 0x00008000
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -25,19 +22,23 @@ signals:
     void progress(int prog);
 
 public:
-    NSPSplitter(QObject* parent);
+    NSPSplitter();
     int nspCalcParts(size_t size);
 
 
     int nspSplit(NSP* nsp);
 
-    int setOutPath(QString path);
+    int setSavePath(QString path);
     int setNSPItem(NSP* nsp);
 private:
     std::ifstream _nsp;
     QString _inPath;
     QString _outPath;
 
+    QString makeSaveDir(QString filename);
+
+    const size_t _FAT32PartSize = 0xFFFF0000;
+    const size_t _FAT32BlockSize = 0x00008000;
 };
 
 #endif // NSPSPLITTER_H

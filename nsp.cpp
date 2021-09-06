@@ -5,11 +5,11 @@ NSP::NSP(){
 }
 
 NSP::NSP(QString path){
-    setSourcePath(path);
+    setPath(path);
     setSize(path);
 }
 
-int NSP::setSourcePath(QString path)
+int NSP::setPath(QString path)
 {
     QFileInfo file(path);
     if(!file.exists() || !file.isFile()){
@@ -24,9 +24,15 @@ size_t NSP::size()
     return _nspSize;
 }
 
-QString NSP::sourcePath()
+QString NSP::path()
 {
     return _nspSourcePath;
+}
+
+QString NSP::name()
+{
+    QStringList splittedPath = _nspSourcePath.split('/');
+    return splittedPath.last();
 }
 
 int NSP::setSize(QString path){
